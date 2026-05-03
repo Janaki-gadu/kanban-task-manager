@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Professional Kanban Board</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(to right, #ffecd2, #fcb69f);
+    }
+    h2 {
+        color: #333;
+        margin-top: 20px;
+    }
+    .controls {
+        margin-bottom: 20px;
+    }
+    input {
+        padding: 10px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .addBtn {
+        padding: 10px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .addBtn:hover {
+        background: #0056b3;
+    }
+    .board-container {
+        display: flex;
+        justify-content: space-between;
+        width: 80%;
+        gap: 20px;
+    }
+    .board {
+        flex: 1;
+        min-height: 400px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        color: white;
+    }
+    #todo {
+        background: #f8c8dc; /* Pale Pink */
+    }
+    #doing {
+        background: #c1f0c1; /* Pale Green */
+    }
+    #done {
+        background: #add8e6; /* Pale Blue */
+    }
+    .sticky-note {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        cursor: grab;
+        font-size: 16px;
+        position: relative;
+        color: white;
+    }
+    .close {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        background: red;
+        color: white;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 50%;
+        font-size: 12px;
+    }
+    .close:hover {
+        background: darkred;
+    }
+</style>
+</head>
+<body>
+
+<h2>Kanban Task Manager</h2>
+<div class="controls">
+    <input type="text" id="taskInput" placeholder="Enter new task...">
+    <button class="addBtn" onclick="addTask()">Add Task</button>
+</div>
+
+<div class="board-container">
+    <div class="board" id="todo" ondragover="allowDrop(event)" ondrop="drop(event)"><h3>To Do</h3></div>
+    <div class="board" id="doing" ondragover="allowDrop(event)" ondrop="drop(event)"><h3>In Progress</h3></div>
+    <div class="board" id="done" ondragover="allowDrop(event)" ondrop="drop(event)"><h3>Completed</h3></div>
+</div>
+
+<script>
+function addTask() {
+    var input = document.getElementById("taskInput");
+    var taskText = input.value.trim();
+    if (taskText === "") {
+        alert("Please enter a task!");
+        return;
+    }
+    var note = createTaskElement(taskText);
+    document.getElementById("todo").appendChild(note);
+    input.value = "";
+}
+
+function createTaskElement(taskText) {
+    var note = document.createElement("div");
+    note.className = "sticky-note";
+    note.textContent = taskText;
+    note.draggable = true;
+    note.id = "task-" + new Date().getTime();
+    note.ondragstart = drag;
+    note.style.backgroundColor = getRandomColor();
+    
+    var closeBtn = document.createElement("button");
+    closeBtn.textContent = "×";
+    closeBtn.className = "close";
+    closeBtn.onclick = function(event) {
+        event.stopPropagation();
+        note.remove();
+    };
+    
+    note.appendChild(closeBtn);
+    return note;
+}
+
+function getRandomColor() {
+    var colors = ["#ff5733", "#33ff57", "#3357ff", "#f39c12", "#8e44ad", "#e74c3c", "#3498db", "#2ecc71"];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function drag(event) {
+    event.dataTransfer.setData("text", event.target.id);
+    setTimeout(() => {
+        event.target.style.display = "none";
+    }, 0);
+}
+
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+function drop(event) {
+    event.preventDefault();
+    var data = event.dataTransfer.getData("text");
+    var note = document.getElementById(data);
+    if (note) {
+        event.target.appendChild(note);
+        note.style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>
